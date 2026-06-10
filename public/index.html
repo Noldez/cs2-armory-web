@@ -171,6 +171,7 @@
 let catalog = null;
 let customSkins = [];
 let playerModelsCatalog = [];
+let weapon3d = new Set(); // defindexes that have /models/weapons/<defindex>.glb
 let loadout = { skins: [], knives: [], gloves: [], agents: [], music: [], customModels: [], playerModels: {} };
 let activeTab = "weapons";
 let selectedWeaponDefindex = null;
@@ -215,6 +216,10 @@ async function init() {
     catalog = await catRes.json();
     customSkins = await customRes.json();
     playerModelsCatalog = await modelsRes.json();
+    try {
+      const m = await fetch("/models/weapons/manifest.json");
+      if (m.ok) weapon3d = new Set(await m.json());
+    } catch(e) {}
     await refreshLoadout();
     renderTab();
   } catch(e) {
@@ -279,11 +284,19 @@ function renderWeaponsTab(main) {
 
   main.innerHTML = sidebar + `
     <div class="content">
-      <div class="search-bar"><input type="text" id="skinSearch" placeholder="Search skins..." oninput="filterSkins()" /></div>
+      <div class="search-bar" style="display:flex;gap:8px">
+        <input type="text" id="skinSearch" placeholder="Search skins..." oninput="filterSkins()" style="flex:1" />
+        ${view3dButton(selectedWeaponDefindex, WEAPON_NAMES[selectedWeaponDefindex])}
+      </div>
       <div class="skin-grid" id="skinGrid"></div>
     </div>`;
 
   renderSkinGrid();
+}
+
+function view3dButton(defindex, name) {
+  if (!weapon3d.has(defindex)) return '';
+  return `<button class="btn btn-secondary" style="white-space:nowrap" onclick="open3DViewer('/models/weapons/${defindex}.glb','${(name || 'Weapon').replace(/'/g, "\\'")}')">View 3D</button>`;
 }
 
 function selectWeapon(defindex) {
@@ -332,7 +345,10 @@ function renderKnivesTab(main) {
 
   main.innerHTML = sidebar + `
     <div class="content">
-      <div class="search-bar"><input type="text" id="knifeSearch" placeholder="Search knife skins..." oninput="filterKnifeSkins()" /></div>
+      <div class="search-bar" style="display:flex;gap:8px">
+        <input type="text" id="knifeSearch" placeholder="Search knife skins..." oninput="filterKnifeSkins()" style="flex:1" />
+        ${selectedWeaponDefindex > 0 ? view3dButton(selectedWeaponDefindex, KNIFE_NAMES[selectedWeaponDefindex]) : ''}
+      </div>
       <div class="skin-grid" id="knifeGrid"></div>
     </div>`;
 

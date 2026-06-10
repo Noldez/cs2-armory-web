@@ -35,6 +35,19 @@ Every write endpoint upserts the `armory` database, then calls the plugin:
 
 If the game server is offline the push silently no-ops — changes still load on next connect.
 
+## 3D previews
+
+- Custom-skin cards with a `model3d` entry get a **3D** button (orbitable `<model-viewer>` modal).
+- The Weapons/Knives tabs get a **View 3D** button for the selected weapon. The GLBs are
+  extracted from your CS2 install (not committed — ~50 files, hundreds of MB):
+
+  ```powershell
+  powershell -File tools\extract-weapon-models.ps1   # needs Source 2 Viewer CLI
+  ```
+
+  Output lands in `public/models/weapons/<defindex>.glb` + `manifest.json`; the UI picks
+  them up automatically on next load.
+
 ## Custom content
 
 - `custom_skins.json` — custom weapon model entries shown in the Custom tab
