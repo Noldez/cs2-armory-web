@@ -110,6 +110,22 @@ async function armoryPost(route) {
 const pushRefresh = steamId => armoryPost(`/refresh/${steamId}`);
 const pushPrecacheReload = () => armoryPost("/precache/reload");
 
+// Seed precache_models with every model in the catalogs so the plugin precaches them all
+// on every map load — picking any catalog model mid-map then applies without a map change.
+async function seedPrecacheModels() {
+  const paths = new Set();
+  try {
+    JSON.parse(fs.readFileSync(CUSTOM_SKINS_FILE, "utf-8")).forEach(s => s.model_path && paths.add(s.model_path));
+  } catch {}
+  PLAYER_MODELS_CATALOG.forEach(m => m.model_path && paths.add(m.model_path));
+
+  for (const p of paths) {
+    await pool.execute("INSERT IGNORE INTO precache_models (model_path) VALUES (?)", [p]);
+  }
+  await pushPrecacheReload();
+  console.log(`✓ Seeded ${paths.size} catalog model(s) into precache_models`);
+}
+
 // ─── Catalog ──────────────────────────────────────────────────────────────────
 
 const CACHE_FILE = path.join(__dirname, "catalog.json");
@@ -403,6 +419,7 @@ app.delete("/api/player-model/:steamId/:team", async (req, res) => {
 const PORT = 3000;
 
 Promise.all([ensureTables(), loadCatalog()])
+  .then(() => seedPrecacheModels())
   .then(() => {
     app.listen(PORT, () => console.log(`\n✓ Armory web running → http://localhost:${PORT}\n`));
   })

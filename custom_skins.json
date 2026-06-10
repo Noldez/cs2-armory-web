@@ -7,5 +7,14 @@
     "model_path": "weapons/nozb1/ramen_m4a4/ramen_m4a4_ag2.vmdl",
     "image": null,
     "author": "nozb1"
+  },
+  {
+    "id": "jiye_reimu_karambit",
+    "name": "Reimu Karambit",
+    "weapon_defindex": 507,
+    "weapon_name": "Karambit",
+    "model_path": "models/jiye/reimu_karambit/weapon_knife_karambit.vmdl",
+    "image": null,
+    "author": "姬野永远"
   }
 ]
