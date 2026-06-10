@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Armory</title>
+<script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: #0f1115; color: #e0e0e0; font-family: 'Segoe UI', sans-serif; min-height: 100vh; }
@@ -78,6 +79,12 @@
   .agent-column h3 { font-size: 13px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; padding: 0 4px; }
   .agent-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
 
+  /* 3D viewer */
+  .viewer-badge { position: absolute; top: 6px; left: 6px; background: rgba(232,160,69,.92); color: #000; border: none; border-radius: 6px; font-size: 10px; font-weight: 700; padding: 3px 7px; cursor: pointer; letter-spacing: .5px; }
+  .viewer-badge:hover { background: #f0b060; }
+  .viewer-modal { background: #1a1d24; border: 1px solid #2a2d36; border-radius: 12px; width: 680px; max-width: 92vw; }
+  .viewer-modal model-viewer { width: 100%; height: 480px; background: #11131a; border-radius: 0 0 12px 12px; --poster-color: transparent; }
+
   .toast { position: fixed; bottom: 24px; right: 24px; background: #4caf50; color: #fff; padding: 12px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; z-index: 200; animation: fadeIn .2s ease; }
   .toast.error { background: #c0392b; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -145,6 +152,17 @@
       <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn btn-primary" onclick="saveSkin()">Apply Skin</button>
     </div>
+  </div>
+</div>
+
+<!-- 3D Viewer Modal -->
+<div class="modal-overlay" id="viewerOverlay" style="display:none">
+  <div class="viewer-modal">
+    <div class="modal-header">
+      <h2 id="viewerTitle">3D Preview</h2>
+      <button class="close" onclick="close3DViewer()">×</button>
+    </div>
+    <model-viewer id="viewerModel" camera-controls auto-rotate auto-rotate-delay="0" rotation-per-second="25deg" exposure="1.1" shadow-intensity="0.6" interaction-prompt="none"></model-viewer>
   </div>
 </div>
 
@@ -616,9 +634,22 @@ function renderCustomTab(main) {
       <img src="${img}" alt="${s.name}" loading="lazy" />
       <div class="skin-name">${s.name}</div>
       <div style="padding:0 8px 6px;font-size:10px;color:#666">${s.weapon_name} · by ${s.author || 'unknown'}</div>
+      ${s.model3d ? `<button class="viewer-badge" onclick="event.stopPropagation();open3DViewer('${s.model3d}','${s.name.replace(/'/g, "\\'")}')">3D</button>` : ''}
       ${isEquipped ? '<div class="selected-badge">✓</div>' : ''}
     </div>`;
   }).join('');
+}
+
+// ─── 3D Viewer ────────────────────────────────────────────────────────────────
+function open3DViewer(src, title) {
+  document.getElementById("viewerTitle").textContent = title;
+  document.getElementById("viewerModel").src = src;
+  document.getElementById("viewerOverlay").style.display = "flex";
+}
+
+function close3DViewer() {
+  document.getElementById("viewerOverlay").style.display = "none";
+  document.getElementById("viewerModel").src = "";
 }
 
 async function applyCustomSkin(skin) {
@@ -719,6 +750,7 @@ function showToast(msg, error = false) {
 }
 
 document.getElementById("modalOverlay").addEventListener("click", e => { if (e.target === e.currentTarget) closeModal(); });
+document.getElementById("viewerOverlay").addEventListener("click", e => { if (e.target === e.currentTarget) close3DViewer(); });
 
 init();
 </script>

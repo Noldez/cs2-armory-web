@@ -15,6 +15,7 @@
     "weapon_name": "Karambit",
     "model_path": "models/jiye/reimu_karambit/weapon_knife_karambit.vmdl",
     "image": "/images/reimu_karambit.png",
+    "model3d": "/models/reimu_karambit.glb",
     "author": "姬野永远"
   }
 ]
