@@ -200,7 +200,7 @@ const PLAYER_MODELS_CATALOG = [
     id: "silver_wolf_player_model",
     name: "Silver Wolf",
     model_path: "characters/models/nozb1/silver_wolf_player_model/silver_wolf_player_model.vmdl",
-    image: null,
+    image: "/images/silver_wolf.png",
     author: "nozb1"
   }
 ];
